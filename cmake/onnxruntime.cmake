@@ -69,7 +69,9 @@ elseif(onnxruntime_BUILD_APPLE_FRAMEWORK)
   set(MACOSX_FRAMEWORK_NAME "onnxruntime")
   set(MACOSX_FRAMEWORK_IDENTIFIER "com.microsoft.onnxruntime")
   configure_file(${REPO_ROOT}/cmake/Info.plist.in ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
-
+  configure_file(
+    ${REPO_ROOT}/tools/ci_build/github/apple/framework_info.json.template
+    ${CMAKE_CURRENT_BINARY_DIR}/framework_info.json)
   set_target_properties(onnxruntime PROPERTIES
     FRAMEWORK TRUE
     FRAMEWORK_VERSION A
