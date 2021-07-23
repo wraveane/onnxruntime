@@ -204,12 +204,6 @@
         "test_data_path": "./bertsquad-10/"
     },
     {
-        "model_name": "gpt2-lm-head-10",
-        "working_directory": "./onnx-zoo-models/gpt2-lm-head-10/",
-        "model_path": "./GPT-2-LM-HEAD/model.onnx",
-        "test_data_path": "./GPT-2-LM-HEAD/"
-    },
-    {
         "model_name": "zfnet512-9",
         "working_directory": "./onnx-zoo-models/zfnet512-9/",
         "model_path": "./zfnet512/model.onnx",
