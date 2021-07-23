@@ -19,7 +19,7 @@ parameters:
   displayName: Run on Machine
   type: boolean
   default: false
-h
+
 - name: RunCustom
   displayName: Select Custom Versions Below
   type: boolean
