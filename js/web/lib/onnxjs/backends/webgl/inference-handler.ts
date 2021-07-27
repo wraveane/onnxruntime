@@ -69,6 +69,28 @@ export class WebGLInferenceHandler implements InferenceHandler {
     return outputTextureData;
   }
 
+  run2(key: string, getProgramInfo: () => ProgramInfo, inputs: readonly Tensor[]): Tensor {
+    const artifact = this.session.programManager.getArtifact(key + inputs.map(i => i.dims.join(',')).join('|'));
+
+    if (artifact) {
+      const programInfo = artifact.programInfo;
+      // create texture info for input
+      const inputTextureDatas: TextureData[] = [];
+      for (let i = 0; i < programInfo.inputNames.length; ++i) {
+        inputTextureDatas[i] = this.getOrCreateTextureData(inputs[i], programInfo.inputTypes[i]);
+      }
+
+      // create texture info for output
+      const outputTextureLayout = createTextureLayoutFromTextureType(
+          this.session.layoutStrategy, programInfo.output.dims, programInfo.output.textureType);
+      const outputTextureData = this.createTextureData(outputTextureLayout, programInfo.output.type);
+      this.runProgram(artifact, inputTextureDatas, outputTextureData);
+      return outputTextureData.tensor;
+    }
+
+    return this.run(getProgramInfo(), inputs);
+  }
+
   run(programInfo: ProgramInfo, inputs: readonly Tensor[]): Tensor {
     const outputTextureData = this.executeProgram(programInfo, inputs);
     return outputTextureData.tensor;

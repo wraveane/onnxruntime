@@ -120,12 +120,18 @@ export const conv2DUnpacked =
       const kshape = inputs[1].dims;
       const outputShape =
           calculateOutputShape(xshape, kshape, attributes.dilations, attributes.pads, attributes.strides);
-      const xIm2Col = inferenceHandler.run(
-          createIm2ColProgramInfo(inferenceHandler, inputs[0], inputs[1], outputShape, attributes), [inputs[0]]);
+      // const xIm2Col = inferenceHandler.run(
+      //     createIm2ColProgramInfo(inferenceHandler, inputs[0], inputs[1], outputShape, attributes), [inputs[0]]);
+      const xIm2Col = inferenceHandler.run2(
+          'im2col', () => createIm2ColProgramInfo(inferenceHandler, inputs[0], inputs[1], outputShape, attributes),
+          [inputs[0]]);
 
       const dotProductInputs = inputs.length === 3 ? [xIm2Col, inputs[1], inputs[2]] : [xIm2Col, inputs[1]];
-      const output = inferenceHandler.run(
-          createDotProductProgramInfo(inferenceHandler, inputs, outputShape, attributes), dotProductInputs);
+      // const output = inferenceHandler.run(
+      //     createDotProductProgramInfo(inferenceHandler, inputs, outputShape, attributes), dotProductInputs);
+      const output = inferenceHandler.run2(
+          'dotprod', () => createDotProductProgramInfo(inferenceHandler, inputs, outputShape, attributes),
+          dotProductInputs);
       return output;
     };
 

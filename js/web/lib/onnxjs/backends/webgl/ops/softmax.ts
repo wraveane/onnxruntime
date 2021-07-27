@@ -75,7 +75,7 @@ const createComputeMaxProgramInfo =
         return max;
       }`;
           return {
-            name: 'ComputeMax',
+            name: 'SoftMax_ComputeMax',
             inputNames: ['A'],
             inputTypes: [TextureType.unpacked],
             output: {dims: outputShape, type: input.type, textureType: TextureType.unpacked},
@@ -130,7 +130,7 @@ const createComputScaleProgramInfo =
         return norm_factor;
       }`;
       return {
-        name: 'ComputeScale',
+        name: 'SoftMax_ComputeScale',
         inputNames: ['A', 'Max'],
         inputTypes: [TextureType.unpacked, TextureType.unpacked],
         output: {dims: outputShape, type: input.type, textureType: TextureType.unpacked},

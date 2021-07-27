@@ -17,8 +17,8 @@ export interface BatchNormalizationAttributes {
 export const batchNormalization: OperatorImplementation<BatchNormalizationAttributes> =
     (inferenceHandler: WebGLInferenceHandler, inputs: Tensor[], attributes: BatchNormalizationAttributes): Tensor[] => {
       validateInputs(inputs);
-      const output =
-          inferenceHandler.run(createBatchNormalizationProgramInfo(inferenceHandler, inputs, attributes), inputs);
+      const output = inferenceHandler.run2(
+          'bn', () => createBatchNormalizationProgramInfo(inferenceHandler, inputs, attributes), inputs);
       return [output];
     };
 

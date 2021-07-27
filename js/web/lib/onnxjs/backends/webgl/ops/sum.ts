@@ -8,7 +8,7 @@ import {ProgramInfo, TextureType} from '../types';
 
 export const sum = (inferenceHandler: WebGLInferenceHandler, inputs: Tensor[]): Tensor[] => {
   validateInputs(inputs);
-  const output = inferenceHandler.run(createSumProgramInfo(inferenceHandler, inputs), inputs);
+  const output = inferenceHandler.run2('sum', () => createSumProgramInfo(inferenceHandler, inputs), inputs);
   return [output];
 };
 

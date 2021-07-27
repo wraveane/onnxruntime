@@ -20,8 +20,8 @@ export interface AveragePoolAttributes {
 export const averagePool: OperatorImplementation<AveragePoolAttributes> =
     (inferenceHandler: WebGLInferenceHandler, inputs: Tensor[], attributes: AveragePoolAttributes): Tensor[] => {
       validateInputs(inputs);
-      const output =
-          inferenceHandler.run(createAveragePoolProgramInfo(inferenceHandler, inputs, false, attributes), inputs);
+      const output = inferenceHandler.run2(
+          'averagepool', () => createAveragePoolProgramInfo(inferenceHandler, inputs, false, attributes), inputs);
       return [output];
     };
 
@@ -75,8 +75,8 @@ const createAveragePoolProgramInfo =
 export const globalAveragePool: OperatorImplementation<AveragePoolAttributes> =
     (inferenceHandler: WebGLInferenceHandler, inputs: Tensor[], attributes: AveragePoolAttributes): Tensor[] => {
       validateInputs(inputs);
-      const output =
-          inferenceHandler.run(createAveragePoolProgramInfo(inferenceHandler, inputs, true, attributes), inputs);
+      const output = inferenceHandler.run2(
+          'globalaveragepool', () => createAveragePoolProgramInfo(inferenceHandler, inputs, true, attributes), inputs);
       return [output];
     };
 
@@ -93,8 +93,8 @@ export interface MaxPoolAttributes extends AveragePoolAttributes {
 export const maxPool: OperatorImplementation<MaxPoolAttributes> =
     (inferenceHandler: WebGLInferenceHandler, inputs: Tensor[], attributes: MaxPoolAttributes): Tensor[] => {
       validateInputs(inputs);
-      const output =
-          inferenceHandler.run(createMaxPoolProgramInfo(inferenceHandler, inputs, false, attributes), inputs);
+      const output = inferenceHandler.run2(
+          'maxpool', () => createMaxPoolProgramInfo(inferenceHandler, inputs, false, attributes), inputs);
       return [output];
     };
 
@@ -148,7 +148,8 @@ export const globalMaxPool = (inferenceHandler: WebGLInferenceHandler, inputs: T
   validateInputs(inputs);
   const attributes: MaxPoolAttributes =
       {autoPad: '', ceilMode: 0, countIncludePad: false, kernelShape: [], strides: [], pads: [], storageOrder: 0};
-  const output = inferenceHandler.run(createMaxPoolProgramInfo(inferenceHandler, inputs, true, attributes), inputs);
+  const output = inferenceHandler.run2(
+      'globalmaxpool', () => createMaxPoolProgramInfo(inferenceHandler, inputs, true, attributes), inputs);
   return [output];
 };
 
