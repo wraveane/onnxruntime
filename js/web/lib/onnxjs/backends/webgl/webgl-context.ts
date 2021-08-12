@@ -6,6 +6,7 @@ import {env} from 'onnxruntime-common';
 import * as DataEncoders from './texture-data-encoder';
 import {DataEncoder, Encoder} from './texture-data-encoder';
 import {repeatedTry} from './utils';
+import {STAT} from './webgl-stat';
 
 /**
  * Abstraction and wrapper around WebGLRenderingContext and its operations
@@ -64,6 +65,7 @@ export class WebGLContext {
     const gl = this.gl;
     // create the texture
     const texture = gl.createTexture();
+    STAT.countTextureCreated++;
     // bind the texture so the following methods effect this texture.
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -77,6 +79,7 @@ export class WebGLContext {
         encoder.internalFormat, width, height,
         0,  // Always 0 in OpenGL ES.
         encoder.format, encoder.textureType, buffer);
+    STAT.countTexImage2D++;
     this.checkError();
     return texture as WebGLTexture;
   }
@@ -91,6 +94,7 @@ export class WebGLContext {
         0,  // xoffset
         0,  // yoffset
         width, height, encoder.format, encoder.textureType, buffer);
+    STAT.countTexSubImage2D++;
     this.checkError();
   }
   attachFramebuffer(texture: WebGLTexture, width: number, height: number): void {
@@ -124,6 +128,7 @@ export class WebGLContext {
         0);  // 0, we aren't using MIPMAPs
     // TODO: Check if framebuffer is ready
     gl.readPixels(0, 0, width, height, gl.RGBA, encoder.textureType, buffer);
+    STAT.countReadPixels++;
     this.checkError();
     // unbind FB
     return encoder.decode(buffer, dataSize);
@@ -232,6 +237,7 @@ ${shaderSource}`);
   }
   deleteTexture(texture: WebGLTexture): void {
     this.gl.deleteTexture(texture);
+    STAT.countTextureDeleted++;
   }
   deleteProgram(program: WebGLProgram): void {
     this.gl.deleteProgram(program);

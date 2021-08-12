@@ -11,6 +11,7 @@ import {inspect, promisify} from 'util';
 import {Attribute} from '../lib/onnxjs/attribute';
 import {InferenceHandler, resolveBackend, SessionHandler} from '../lib/onnxjs/backend';
 import {createWebGLContext} from '../lib/onnxjs/backends/webgl/webgl-context-factory';
+import {STAT} from '../lib/onnxjs/backends/webgl/webgl-stat';
 import {Logger, Profiler} from '../lib/onnxjs/instrument';
 import {Operator} from '../lib/onnxjs/operators';
 import {Tensor} from '../lib/onnxjs/tensor';
@@ -482,6 +483,12 @@ export async function runModelTestSet(
       if (Object.hasOwnProperty.call(outputs, name)) {
         const tensor = outputs[name];
         Logger.verbose('TestRunner', `   '${name}': ${tensor.type}[${tensor.dims.join(',')}]`);
+      }
+    }
+    Logger.verbose('TestRunner', ' Debug Stats:');
+    for (const name in STAT) {
+      if (Object.hasOwnProperty.call(STAT, name)) {
+        Logger.verbose('TestRunner', `   '${name}': ${(STAT as unknown as Record<string, unknown>)[name]}`);
       }
     }
 
