@@ -52,4 +52,4 @@ python3 /onnxruntime_src/tools/ci_build/github/linux/ort_minimal/check_build_bin
 # # fi
 
 # Clear the build
-rm -rf /build/MinSizeRel
+# rm -rf /build/MinSizeRel

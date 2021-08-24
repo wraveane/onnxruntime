@@ -183,8 +183,11 @@ jobs:
       azureSubscription: AIInfraBuild
       scriptType: bash
       scriptPath: $(Build.SourcesDirectory)/tools/ci_build/github/linux/upload_binary_size_data.sh
-      arguments: '"$(Build.BinariesDirectory)/MinSizeRel/binary_size_data.txt" "$(Build.SourceVersion)" onnxruntime "$(Build.BuildId)"'
+      arguments: '"$(Build.BinariesDirectory)/MinSizeRel/binary_size_data.txt" onnxruntime'
       workingDirectory: '$(Build.BinariesDirectory)'
+    env:
+      BUILD_SOURCEVERSION: $(Build.SourceVersion)
+      BUILD_ID: $(Build.BuildId)
 
   - task: PublishTestResults@2
     displayName: 'Publish unit test results'
