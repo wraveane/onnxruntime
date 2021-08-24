@@ -179,6 +179,7 @@ jobs:
 
   - task: AzureCLI@2
     displayName: 'Post Minimal Baseline Binary Size To DashBoard'
+    inputs:
       azureSubscription: AIInfraBuild
       scriptType: bash
       scriptPath: $(Build.SourcesDirectory)/tools/ci_build/github/linux/upload_binary_size_data.sh
