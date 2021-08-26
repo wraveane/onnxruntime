@@ -1290,8 +1290,14 @@ def run_android_tests(args, source_dir, build_dir, config, cwd):
             # adb_shell('chmod +x {}/onnx_test_runner'.format(device_dir))
             # run_adb_shell('{0}/onnxruntime_test_all'.format(device_dir))
             if args.build_java:
+                gradle_executable = 'gradle'
+                gradlew_path = os.path.join(source_dir, 'java',
+                                            'gradlew.bat' if is_windows() else 'gradlew')
+                if os.path.exists(gradlew_path):
+                    gradle_executable = gradlew_path
                 android_test_path = os.path.join(cwd, "java", "androidtest", "android")
-                run_subprocess(['gradle', '--no-daemon', 'clean', 'connectedDebugAndroidTest'], cwd=android_test_path)
+                run_subprocess([gradle_executable, '--no-daemon', 'clean', 'connectedDebugAndroidTest'],
+                               cwd=android_test_path)
             # if args.use_nnapi:
             #     adb_shell('cd {0} && {0}/onnx_test_runner -e nnapi {0}/test'.format(device_dir))
             # else:

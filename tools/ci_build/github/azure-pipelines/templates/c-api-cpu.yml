@@ -735,6 +735,9 @@ jobs:
       artifactName: 'onnxruntime-android-aar'
       targetPath: '$(Build.BinariesDirectory)/final-android-aar'
 
+  - script: /bin/bash tools/ci_build/github/android/setup_gradle_wrapper.sh $(pwd)
+    displayName: Setup gradle wrapper to use gradle 6.8.3
+
   - script: |
       python3 $(Build.SourcesDirectory)/tools/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
@@ -752,7 +755,7 @@ jobs:
       cd ./android
       mkdir -p app/libs
       cp $(Build.BinariesDirectory)/final-android-aar/onnxruntime-mobile-$(OnnxRuntimeVersion).aar app/libs/onnxruntime-mobile.aar
-      gradle clean connectedDebugAndroidTest
+      gradle --no-daemon clean connectedDebugAndroidTest
       popd
     displayName: Run E2E test for Android
 
