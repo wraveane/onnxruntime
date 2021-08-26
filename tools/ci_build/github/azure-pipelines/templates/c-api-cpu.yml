@@ -69,9 +69,9 @@ jobs:
         workingDirectory: $(Build.SourcesDirectory)
 
     - script: |
-       set -e -x       
+       set -e -x
        mkdir $(Build.ArtifactStagingDirectory)/testdata
-       cp $(Build.BinariesDirectory)/Release/libcustom_op_library.so* $(Build.ArtifactStagingDirectory)/testdata 
+       cp $(Build.BinariesDirectory)/Release/libcustom_op_library.so* $(Build.ArtifactStagingDirectory)/testdata
        ls -al $(Build.ArtifactStagingDirectory)
       displayName: 'Create Artifacts'
 
@@ -110,7 +110,7 @@ jobs:
     clean: all
   variables:
     MACOSX_DEPLOYMENT_TARGET: '10.13'
-  pool: 
+  pool:
     vmImage: 'macOS-10.15'
   timeoutInMinutes:  120
   steps:
@@ -141,7 +141,7 @@ jobs:
           commitId: $(OnnxRuntimeGitCommitHash)
 
     - script: |
-       set -e -x       
+       set -e -x
        mkdir $(Build.ArtifactStagingDirectory)/testdata
        cp $(Build.BinariesDirectory)/Release/libcustom_op_library.dylib $(Build.ArtifactStagingDirectory)/testdata
       displayName: 'Create Artifacts'
@@ -168,6 +168,9 @@ jobs:
       displayName: 'Clean Agent Directories'
       condition: always()
 
+- template: templates/android-java-api-aar.yml
+  parameters:
+    buildConfig: 'Release'
 
 - template: win-ci.yml
   parameters:
@@ -267,7 +270,7 @@ jobs:
       buildType: 'current'
       artifactName: 'drop-onnxruntime-java-osx-x64'
       targetPath: '$(Build.BinariesDirectory)\java-artifact\onnxruntime-java-osx-x64'
- 
+
   - task: PowerShell@2
     displayName: 'PowerShell Script'
     inputs:
@@ -327,7 +330,7 @@ jobs:
     inputs:
       artifactName: 'onnxruntime-win-x86'
       targetPath: '$(Build.BinariesDirectory)/nuget-artifact'
-      
+
   - task: DownloadPipelineArtifact@0
     displayName: 'Download Pipeline Artifact - NuGet'
     inputs:
@@ -610,7 +613,7 @@ jobs:
   - task: CmdLine@2
     inputs:
       script: |
-        mkdir test 
+        mkdir test
         pushd test
         jar xf $(Build.BinariesDirectory)\final-jar\testing.jar
         popd
@@ -670,14 +673,15 @@ jobs:
 - job: Final_Jar_Testing_MacOs
   workspace:
     clean: all
-  pool: 
+  pool:
     vmImage: 'macOS-10.15'
   variables:
   - name: runCodesignValidationInjection
     value: false
   timeoutInMinutes: 60
   dependsOn:
-    Jar_Packaging
+    - Jar_Packaging
+    - Android_Java_API_AAR_Packaging_Pipeline
   steps:
   - template: set-version-number-variables-step.yml
 
@@ -687,6 +691,13 @@ jobs:
       buildType: 'current'
       artifactName: 'onnxruntime-java'
       targetPath: '$(Build.BinariesDirectory)/final-jar'
+
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Final Android AAR'
+    inputs:
+      buildType: 'current'
+      artifactName: 'onnxruntime-java'
+      targetPath: '$(Build.BinariesDirectory)/final-android-aar'
 
   - task: CmdLine@2
     inputs:

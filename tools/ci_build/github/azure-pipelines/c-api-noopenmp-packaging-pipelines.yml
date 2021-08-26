@@ -99,10 +99,6 @@ jobs:
     buildJava: true
     java_artifact_id: onnxruntime_gpu
 
-- template: templates/android-java-api-aar.yml
-  parameters:
-    buildConfig: 'Release'
-
 - job: Jar_Packaging_GPU
   workspace:
     clean: all
