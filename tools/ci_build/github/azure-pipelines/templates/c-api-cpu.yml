@@ -168,7 +168,7 @@ jobs:
       displayName: 'Clean Agent Directories'
       condition: always()
 
-- template: templates/android-java-api-aar.yml
+- template: android-java-api-aar.yml
   parameters:
     buildConfig: 'Release'
 
