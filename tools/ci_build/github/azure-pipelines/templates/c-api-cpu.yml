@@ -680,8 +680,7 @@ jobs:
     value: false
   timeoutInMinutes: 60
   dependsOn:
-    - Jar_Packaging
-    - Android_Java_API_AAR_Packaging_Pipeline
+    Jar_Packaging
   steps:
   - template: set-version-number-variables-step.yml
 
@@ -691,13 +690,6 @@ jobs:
       buildType: 'current'
       artifactName: 'onnxruntime-java'
       targetPath: '$(Build.BinariesDirectory)/final-jar'
-
-  - task: DownloadPipelineArtifact@2
-    displayName: 'Download Final Android AAR'
-    inputs:
-      buildType: 'current'
-      artifactName: 'onnxruntime-android-aar'
-      targetPath: '$(Build.BinariesDirectory)/final-android-aar'
 
   - task: CmdLine@2
     inputs:
@@ -714,6 +706,34 @@ jobs:
           DYLD_LIBRARY_PATH=./test:${DYLD_LIBRARY_PATH}
           java -jar ./junit-platform-console-standalone-1.6.2.jar -cp .:./test:./protobuf-java-3.9.2.jar:./onnxruntime-$(OnnxRuntimeVersion).jar --scan-class-path --fail-if-no-tests --disable-banner
         workingDirectory: '$(Build.BinariesDirectory)/final-jar'
+
+  - template: component-governance-component-detection-steps.yml
+    parameters :
+      condition : 'succeeded'
+  - task: mspremier.PostBuildCleanup.PostBuildCleanup-task.PostBuildCleanup@3
+    displayName: 'Clean Agent Directories'
+    condition: always()
+
+- job: Final_AAR_Testing_Android
+  workspace:
+    clean: all
+  pool:
+    vmImage: 'macOS-10.15'
+  variables:
+  - name: runCodesignValidationInjection
+    value: false
+  timeoutInMinutes: 60
+  dependsOn:
+    - Android_Java_API_AAR_Packaging_Pipeline
+  steps:
+  - template: set-version-number-variables-step.yml
+
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Final Android AAR'
+    inputs:
+      buildType: 'current'
+      artifactName: 'onnxruntime-android-aar'
+      targetPath: '$(Build.BinariesDirectory)/final-android-aar'
 
   - script: |
       python3 $(Build.SourcesDirectory)/tools/python/run_android_emulator.py \
