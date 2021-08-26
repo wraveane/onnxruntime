@@ -745,10 +745,10 @@ jobs:
 
   - script: |
       set -e -x
-      pushd $(Build.SourcesDirectory)
+      pushd $(Build.BinariesDirectory)
       mkdir android_test
       cd android_test
-      cp -avr $(Build.SourcesDirectory)/java/src/test/android ./
+      cp -av $(Build.SourcesDirectory)/java/src/test/android ./
       cd ./android
       mkdir -p app/libs
       cp $(Build.BinariesDirectory)/final-android-aar/onnxruntime-mobile-$(OnnxRuntimeVersion).aar app/libs/onnxruntime-mobile.aar
