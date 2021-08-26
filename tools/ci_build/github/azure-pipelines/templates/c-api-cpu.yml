@@ -696,7 +696,7 @@ jobs:
     displayName: 'Download Final Android AAR'
     inputs:
       buildType: 'current'
-      artifactName: 'onnxruntime-java'
+      artifactName: 'onnxruntime-android-aar'
       targetPath: '$(Build.BinariesDirectory)/final-android-aar'
 
   - task: CmdLine@2
@@ -714,6 +714,34 @@ jobs:
           DYLD_LIBRARY_PATH=./test:${DYLD_LIBRARY_PATH}
           java -jar ./junit-platform-console-standalone-1.6.2.jar -cp .:./test:./protobuf-java-3.9.2.jar:./onnxruntime-$(OnnxRuntimeVersion).jar --scan-class-path --fail-if-no-tests --disable-banner
         workingDirectory: '$(Build.BinariesDirectory)/final-jar'
+
+  - script: |
+      python3 $(Build.SourcesDirectory)/tools/python/run_android_emulator.py \
+        --android-sdk-root ${ANDROID_SDK_ROOT} \
+        --create-avd --system-image "system-images;android-30;google_apis;x86_64" \
+        --start --emulator-extra-args="-partition-size 4096" \
+        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
+    displayName: Start Android emulator
+
+  - script: |
+      pushd $(Build.SourcesDirectory)
+      mkdir android_test
+      cd android_test
+      cp -avr $(Build.SourcesDirectory)/java/src/test/android ./
+      cd ./android
+      mkdir -p app/libs
+      cp $(Build.BinariesDirectory)/final-android-aar/onnxruntime-mobile-$(OnnxRuntimeVersion).aar app/libs/onnxruntime-mobile.aar
+      gradle clean connectedDebugAndroidTest
+      popd
+    displayName: Run E2E test for Android
+
+  - script: |
+      python3 $(Build.SourcesDirectory)/tools/python/run_android_emulator.py \
+        --android-sdk-root ${ANDROID_SDK_ROOT} \
+        --stop \
+        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
+    displayName: Stop Android emulator
+    condition: always()
 
   - template: component-governance-component-detection-steps.yml
     parameters :
