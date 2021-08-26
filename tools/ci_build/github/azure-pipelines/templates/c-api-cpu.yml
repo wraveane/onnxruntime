@@ -744,6 +744,7 @@ jobs:
     displayName: Start Android emulator
 
   - script: |
+      set -e -x
       pushd $(Build.SourcesDirectory)
       mkdir android_test
       cd android_test
