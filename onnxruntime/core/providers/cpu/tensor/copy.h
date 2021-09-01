@@ -117,8 +117,10 @@ void StridedCopy(concurrency::ThreadPool* thread_pool,
   std::vector<int64_t> copy_shape(copy_shape_in.GetDims());
 
   CoalesceDimensions({dst_strides, src_strides}, copy_shape);
-  ORT_ENFORCE(dst_strides.size() == src_strides.size() && src_strides.size() == copy_shape.size(),
-              "src and dst must have same shape");
+  ORT_ENFORCE(dst_strides.size() == src_strides.size() &&
+                  src_strides.size() == copy_shape.size() &&
+                  !copy_shape.empty(),
+              "src and dst must have same shape and not be rank 0.");
 
   const std::size_t dims = copy_shape.size();
   // We will iterate over the output dimensions
@@ -135,8 +137,6 @@ void StridedCopy(concurrency::ThreadPool* thread_pool,
 
   // TODOs for when we have strided tensors:
   // - Reorder dimensions so that we iterate along the smallest strides first
-
-  ORT_ENFORCE(dims > 0);
 
   if (dims <= 2 && src_strides[dims - 1] == 1 && dst_strides[dims - 1] == 1) {
     // Fast path for 2D copies that skips the NdCounter required in the general case.
@@ -285,7 +285,7 @@ Status DispatchStridedCopy(concurrency::ThreadPool* thread_pool,
                                                                      copy_shape, src, src_strides);
         break;
       case sizeof(uint8_t):
-        static_assert(sizeof(bool) == sizeof(uint8_t), "Need to enabled separate case for 'bool' on this platform.");
+        static_assert(sizeof(bool) == sizeof(uint8_t), "Need to enable separate case for 'bool' on this platform.");
         supported = StridedCopyIfEnabled<EnabledDataTypes, uint8_t>(thread_pool, dst, dst_offset, dst_strides,
                                                                     copy_shape, src, src_strides);
         break;
