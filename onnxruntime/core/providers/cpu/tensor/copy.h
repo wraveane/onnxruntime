@@ -30,28 +30,26 @@ void Copy1DNonContiguous(T* dst, int64_t dst_stride, const T* src, int64_t src_s
 
 template <typename T>
 void Copy1DContiguous(T* dst, const T* src, std::ptrdiff_t count) {
-  memcpy(dst, src, count * sizeof(T));
-}
-
-template <>
-void Copy1DContiguous<std::string>(std::string* dst, const std::string* src, std::ptrdiff_t count) {
-  Copy1DNonContiguous(dst, 1, src, 1, count);
+  if constexpr (std::is_same_v<std::string, T>) {
+    Copy1DNonContiguous(dst, 1, src, 1, count);
+  } else {
+    memcpy(dst, src, count * sizeof(T));
+  }
 }
 
 template <typename T>
 void Copy1D(T* dst, int64_t dst_stride, const T* src, int64_t src_stride, std::ptrdiff_t count) {
-  if (dst_stride == 1 && src_stride == 1) {
-    Copy1DContiguous(dst, src, count);
-  } else {
+  if constexpr (std::is_same_v<std::string, T>) {
+    // strings should always be copied using the for loop
     Copy1DNonContiguous(dst, dst_stride, src, src_stride, count);
-  }
-}
 
-template <>
-void Copy1D<std::string>(std::string* dst, int64_t dst_stride, const std::string* src, int64_t src_stride,
-                         std::ptrdiff_t count) {
-  // strings should always be copied using the for loop
-  Copy1DNonContiguous(dst, dst_stride, src, src_stride, count);
+  } else {
+    if (dst_stride == 1 && src_stride == 1) {
+      Copy1DContiguous(dst, src, count);
+    } else {
+      Copy1DNonContiguous(dst, dst_stride, src, src_stride, count);
+    }
+  }
 }
 
 struct NdCounter {
@@ -192,14 +190,20 @@ void StridedCopy(concurrency::ThreadPool* thread_pool,
           Copy1DContiguous<T>(dst + dst_idx, src + src_idx, last_span_size);
         });
   } else {
+    // enforce that the lambda doesn't change anything
+    const std::vector<int64_t>& const_dst_strides = dst_strides;
+    const std::vector<int64_t>& const_src_strides = src_strides;
+    const std::vector<int64_t>& const_copy_shape = copy_shape;
+
     concurrency::ThreadPool::TryParallelFor(
         thread_pool, num_iterations,
         {static_cast<float>(sizeof(T)), static_cast<float>(sizeof(T)), 1.0F},
-        [copy_shape, dst_strides, dst, src, src_strides, dims](std::ptrdiff_t first, std::ptrdiff_t last) {
-          NdCounter counter(copy_shape, first, last);
+        [&const_copy_shape, &const_dst_strides, dst, src, &const_src_strides, dims](std::ptrdiff_t first,
+                                                                                    std::ptrdiff_t last) {
+          NdCounter counter(const_copy_shape, first, last);
 
-          auto last_dst_stride = dst_strides[dims - 1];
-          auto last_src_stride = src_strides[dims - 1];
+          auto last_dst_stride = const_dst_strides[dims - 1];
+          auto last_src_stride = const_src_strides[dims - 1];
 
           auto iter_size = counter.NextStepSize();
           while (iter_size > 0) {
@@ -207,8 +211,8 @@ void StridedCopy(concurrency::ThreadPool* thread_pool,
             std::ptrdiff_t dst_idx = 0;
             std::ptrdiff_t src_idx = 0;
             for (std::size_t dim = 0; dim < dims; dim++) {
-              dst_idx += counter.current_index[dim] * dst_strides[dim];
-              src_idx += counter.current_index[dim] * src_strides[dim];
+              dst_idx += counter.current_index[dim] * const_dst_strides[dim];
+              src_idx += counter.current_index[dim] * const_src_strides[dim];
             }
             // we can copy until the current dimension is done (or until we hit the last element we are trying to copy)
             Copy1D<T>(dst + dst_idx, last_dst_stride, src + src_idx, last_src_stride, iter_size);
