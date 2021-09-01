@@ -3,8 +3,10 @@
 
 #pragma once
 
-#include "core/providers/common.h"
 #include "core/platform/threadpool.h"
+#include "core/providers/common.h"
+#include "core/providers/op_kernel_type_control.h"
+#include "core/providers/op_kernel_type_control_utils.h"
 
 #include <vector>
 
@@ -244,7 +246,7 @@ bool StridedCopyIfEnabled(concurrency::ThreadPool* thread_pool,
 }
 
 // EnabledTypes is an onnxruntime::TypeList with the enabled types in this build.
-// see "core/framework/element_type_lists.h" for default lists or the usaage in
+// see "core/framework/element_type_lists.h" for default lists or the usage in
 // onnxruntime/core/providers/cpu/tensor/concat.cc for
 template <typename EnabledDataTypes>
 Status DispatchStridedCopy(concurrency::ThreadPool* thread_pool,
