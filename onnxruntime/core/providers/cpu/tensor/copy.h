@@ -140,7 +140,7 @@ void StridedCopy(concurrency::ThreadPool* thread_pool,
 
   if (dims <= 2 && src_strides[dims - 1] == 1 && dst_strides[dims - 1] == 1) {
     // Fast path for 2D copies that skips the NdCounter required in the general case.
-    // This avoids overhead which becomes noticable at smaller iteration sizes.
+    // This avoids overhead which becomes noticeable at smaller iteration sizes.
     //
     // After coalescing, the case is actually quite common since all tensors in ORT are contiguous
 
